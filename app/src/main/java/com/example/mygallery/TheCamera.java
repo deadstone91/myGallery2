@@ -77,7 +77,7 @@ public class TheCamera extends AppCompatActivity {
             }
             if(theImage != null){
                 Uri uri = FileProvider.getUriForFile(this,"com.example.mygallery.fileprovider",theImage);
-
+                
                 Toast.makeText(this,"File Saved",Toast.LENGTH_SHORT).show();
                 Log.i("FILE-SAVE", "savePic:"+ uri );
                 this.finish();
