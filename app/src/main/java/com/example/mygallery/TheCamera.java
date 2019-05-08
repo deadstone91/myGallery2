@@ -1,5 +1,6 @@
 package com.example.mygallery;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,10 +13,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,6 +27,7 @@ import java.util.Date;
 
 public class TheCamera extends AppCompatActivity {
     ImageView theView;
+    Button save;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 2;
     String currentPhotoPath;
@@ -38,17 +43,25 @@ public class TheCamera extends AppCompatActivity {
         Intent takePic = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //retrieves image from device inbuilt camera app
         if (takePic.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePic, REQUEST_IMAGE_CAPTURE);
-            startActivityForResult(takePic,REQUEST_TAKE_PHOTO);
+
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
+            //Bitmap theImage = (Bitmap) extras.get("fullImage");
             theView = findViewById(R.id.cameraReturn);
             theView.setImageBitmap(imageBitmap);
+            save = findViewById(R.id.saveBtn);
+            save.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    savePic(data);
+                }
+            });
         }
     }
 
@@ -67,7 +80,7 @@ public class TheCamera extends AppCompatActivity {
                 .show();
     }
 
-    protected void savePic(View view){
+    protected void savePic(Intent data){
         Intent save = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if(save.resolveActivity(getPackageManager()) != null){
             File theImage = null;
@@ -79,7 +92,23 @@ public class TheCamera extends AppCompatActivity {
             }
             if(theImage != null){
                 Uri uri = FileProvider.getUriForFile(this,"com.example.mygallery.fileprovider",theImage);
-                //save.putExtra(MediaStore.EXTRA_OUTPUT,uri);
+                Bundle bundle = data.getExtras();
+                
+                String filePath = currentPhotoPath;
+                FileOutputStream outputStream;
+
+                try {
+                    outputStream = openFileOutput(filePath, Context.MODE_PRIVATE);
+                    outputStream.write(bundle.getBytes());
+                    outputStream.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+
+
+                Log.i("BUNDLE_CONTENTS", "savePic: "+ bundle);
                 Toast.makeText(this,"File Saved",Toast.LENGTH_SHORT).show();
                 Log.i("FILE-SAVE", "savePic:"+ uri );
                 this.finish();
@@ -90,7 +119,7 @@ public class TheCamera extends AppCompatActivity {
     }
 
     private File createImageFile() throws IOException {
-        String stamp = new SimpleDateFormat("ddMMyyHHmmss").format(new Date());
+        String stamp = new SimpleDateFormat("ddMMyyHHmmss_").format(new Date());
         String fileName = "myGal_" + stamp;
         File dir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
