@@ -92,14 +92,16 @@ public class TheCamera extends AppCompatActivity {
             }
             if(theImage != null){
                 Uri uri = FileProvider.getUriForFile(this,"com.example.mygallery.fileprovider",theImage);
-                Bundle bundle = data.getExtras();
-                
                 String filePath = currentPhotoPath;
+                Bundle bundle = data.getExtras();
+                Bitmap image = (Bitmap)bundle.get("data");
+
                 FileOutputStream outputStream;
 
                 try {
-                    outputStream = openFileOutput(filePath, Context.MODE_PRIVATE);
-                    outputStream.write(bundle.getBytes());
+                    outputStream = new FileOutputStream(filePath);
+
+                     image.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
                     outputStream.close();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
