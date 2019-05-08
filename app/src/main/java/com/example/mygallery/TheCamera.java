@@ -31,6 +31,7 @@ public class TheCamera extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 2;
     String currentPhotoPath;
+    String currentDirPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +114,10 @@ public class TheCamera extends AppCompatActivity {
                 Log.i("BUNDLE_CONTENTS", "savePic: "+ bundle);
                 Toast.makeText(this,"File Saved",Toast.LENGTH_SHORT).show();
                 Log.i("FILE-SAVE", "savePic:"+ uri );
+                Intent back = new Intent(this, MainActivity.class);
+                back.putExtra("dirPath", currentDirPath);
+                startActivity(back);
+
                 this.finish();
             }else {
                 Toast.makeText(this,"File Save Failed!",Toast.LENGTH_SHORT).show();
@@ -124,6 +129,8 @@ public class TheCamera extends AppCompatActivity {
         String stamp = new SimpleDateFormat("ddMMyyHHmmss_").format(new Date());
         String fileName = "myGal_" + stamp;
         File dir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        currentDirPath = dir.getAbsolutePath();
+        Log.i("PATH", "createImageFile:" + currentDirPath);
 
         File image  = File.createTempFile(fileName,".jpg",dir);
         Log.i("what the dir", "createImageFile:" + image);
