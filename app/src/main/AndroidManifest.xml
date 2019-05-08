@@ -16,7 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".TheGallery"></activity>
-        <activity android:name=".gallery" />
         <activity android:name=".TheCamera" />
         <activity android:name=".MainActivity">
             <intent-filter>
