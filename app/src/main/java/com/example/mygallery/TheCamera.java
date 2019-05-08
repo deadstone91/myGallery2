@@ -40,7 +40,7 @@ public class TheCamera extends AppCompatActivity {
         dispatchTakePictureIntent();
     }
 
-    private void dispatchTakePictureIntent(){
+    protected void dispatchTakePictureIntent(){
         Intent takePic = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //retrieves image from device inbuilt camera app
         if (takePic.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePic, REQUEST_IMAGE_CAPTURE);
