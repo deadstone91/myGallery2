@@ -24,6 +24,7 @@ import java.util.Date;
 public class TheCamera extends AppCompatActivity {
     ImageView theView;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_TAKE_PHOTO = 2;
     String currentPhotoPath;
 
     @Override
@@ -34,9 +35,10 @@ public class TheCamera extends AppCompatActivity {
     }
 
     private void dispatchTakePictureIntent(){
-        Intent takePic = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent takePic = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //retrieves image from device inbuilt camera app
         if (takePic.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePic, REQUEST_IMAGE_CAPTURE);
+            startActivityForResult(takePic,REQUEST_TAKE_PHOTO);
         }
     }
 
@@ -77,7 +79,7 @@ public class TheCamera extends AppCompatActivity {
             }
             if(theImage != null){
                 Uri uri = FileProvider.getUriForFile(this,"com.example.mygallery.fileprovider",theImage);
-                
+                //save.putExtra(MediaStore.EXTRA_OUTPUT,uri);
                 Toast.makeText(this,"File Saved",Toast.LENGTH_SHORT).show();
                 Log.i("FILE-SAVE", "savePic:"+ uri );
                 this.finish();
