@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -43,26 +44,66 @@ public class TheCamera extends AppCompatActivity {
     protected void dispatchTakePictureIntent(){
         Intent takePic = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //retrieves image from device inbuilt camera app
         if (takePic.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePic, REQUEST_IMAGE_CAPTURE);
+            //startActivityForResult(takePic, REQUEST_IMAGE_CAPTURE);
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+                Log.i("DTPI-1", "dispatchTakePictureIntent: The IF AND TRY");
+            } catch (IOException ex) {
+                Log.i("DTPI-3" , "dispatchTakePictureIntent: catch");
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Log.i("photoURI", "dispatchTakePictureIntent: PHOTO FILE NOT EMPTY");
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.example.mygallery.fileprovider",
+                        photoFile);
+                Log.i("PHOTOFILE", "dispatchTakePictureIntent:" + photoURI);
+               takePic.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                takePic.putExtra("data","hello");
+                startActivityForResult(takePic, REQUEST_IMAGE_CAPTURE);
+                setResult(RESULT_OK, takePic);
 
+
+            }
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
+
+        theView = findViewById(R.id.cameraReturn);
+        save = findViewById(R.id.saveBtn);
+
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            //Bitmap theImage = (Bitmap) extras.get("fullImage");
-            theView = findViewById(R.id.cameraReturn);
-            theView.setImageBitmap(imageBitmap);
-            save = findViewById(R.id.saveBtn);
-            save.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    savePic(data);
-                }
-            });
+            if(data != null){
+                Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                //Bitmap theImage = (Bitmap) extras.get("fullImage");
+                theView = findViewById(R.id.cameraReturn);
+                theView.setImageBitmap(imageBitmap);
+
+                save.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        savePic(data);
+                    }
+                });
+            }else{
+                Bitmap bit;
+                bit = BitmapFactory.decodeFile(currentPhotoPath);
+                theView.setImageBitmap(bit);
+                final Intent intent = new Intent();
+                intent.putExtra("data",bit);
+                save.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        savePic(intent);
+                    }
+                });
+            }
+
+
         }
     }
 
@@ -102,7 +143,7 @@ public class TheCamera extends AppCompatActivity {
                 try {
                     outputStream = new FileOutputStream(filePath);
 
-                     image.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
+                     image.compress(Bitmap.CompressFormat.JPEG,1,outputStream);
                     outputStream.close();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();

@@ -20,10 +20,11 @@ import java.nio.file.Files;
 public class ImageAdapter extends BaseAdapter {
     private Context context;
 
-    public File[] pics = new File[50];
-    public Bitmap[] bit = new Bitmap[50];
+    private File[] pics = new File[50];
+    private Bitmap[] bit = new Bitmap[50];
     String path;
     File[] files;
+    int counter = 0;
 
     public ImageAdapter(Context con,String dirPath){
         context = con;
@@ -31,7 +32,7 @@ public class ImageAdapter extends BaseAdapter {
         getImages();
     }
 
-    public int getImages(){
+    public void getImages(){
         //String path = Environment.getExternalStorageDirectory().toString()+"/Pictures";
         Log.d("Files", "Path: " + path);
         File directory = new File(path);
@@ -40,15 +41,20 @@ public class ImageAdapter extends BaseAdapter {
         Log.d("Files", "Size: "+ files.length);
         if(files.length != 0){
             for (int i = 0; i < files.length; i++) {
-                pics[i] = files[i];
-                Log.d("Files", "FileName:" + files[i].getName());
-                Bitmap bm = BitmapFactory.decodeFile(path + files[i].getName());
-                bit[i] = bm;
+                int mod = i%2;
+                Log.i("MOD", "getImages: " + mod);
+                if(mod == 1){
+
+                    pics[i] = files[i];
+                    Log.d("Files", "FileName:" + files[i].getName());
+                    Bitmap bm = BitmapFactory.decodeFile(path + files[i].getName());
+                    bit[counter] = bm;
+                    counter++;
+                }
+
+
 
             }
-            return 1;
-        }else {
-            return 2;
         }
     }
 
