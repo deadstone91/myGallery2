@@ -11,12 +11,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 
 public class TheGallery extends AppCompatActivity {
     GridView grid;
     String dirPath;
+    Bitmap thatImage = null;
+
+    String filePath;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,8 +44,21 @@ public class TheGallery extends AppCompatActivity {
 
                 Log.i("GALLERY POSITION", "onItemClick: " + position);
                 if(position == 0){
-                    Bitmap theImageIWant = getFile(position);
-                    Intent viewImage = new Intent(this, ViewImage.class)
+                    Bitmap theImageIWant = null;
+                    getFile(position);
+
+                    Log.i("THEIMAGEIWANT", "onItemClick: " + theImageIWant);
+
+                    Intent viewImage = new Intent(TheGallery.this, ViewImage.class);
+                    viewImage.putExtra("picture",filePath);
+                    filePath = null;
+                    startActivity(viewImage);
+                }else{
+                    getFile(position);
+                    Intent viewImage = new Intent(TheGallery.this, ViewImage.class);
+                    viewImage.putExtra("picture",filePath);
+                    filePath = null;
+                    startActivity(viewImage);
                 }
             }
         });
@@ -62,17 +82,20 @@ public class TheGallery extends AppCompatActivity {
 
     }
 
-    protected Bitmap getFile(int number){
-        Bitmap image = null;
-        File directory = new File(dirPath);
-        File[] images = new File[50];
-        images = directory.listFiles();
-            Log.i("DIRECTORY LENGTH", "getFile:" + images.length);
-        if(number == 0){
-            image = BitmapFactory.decodeFile(images[0].getName());
-        }
+    protected void getFile(int number){
 
-        return image;
+        File directory = new File(dirPath);
+        File[] images;
+        images = directory.listFiles();
+        Log.i("DIRECTORY LENGTH", "getFile:" + images.length);
+        if(number == 0){
+            filePath = dirPath + images[0].getName();
+            Log.i("file~path", "getFile: " + filePath);
+        }else{
+            int temp = (number*2)+1;
+            filePath = dirPath + images[temp].getName();
+            Log.i("file~path2", "getFile: " + filePath);
+        }
     }
 }
 
