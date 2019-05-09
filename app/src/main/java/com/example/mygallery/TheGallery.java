@@ -64,22 +64,25 @@ public class TheGallery extends AppCompatActivity {
         });
     }
     protected void alert(){
-        if (grid.getChildCount() == 0){
-            new AlertDialog.Builder(this)
-                    .setTitle("Empty")
-                    .setMessage("Gallery seems to be empty would you like to take a photo?")
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent go = new Intent(TheGallery.this, TheCamera.class);
-                            startActivity(go);
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no,null)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
-        }
+        File dir = new File(dirPath);
+        File[] files = dir.listFiles();
 
+        if(files.length == 0){
+
+                new AlertDialog.Builder(this)
+                        .setTitle("Empty")
+                        .setMessage("Gallery seems to be empty would you like to take a photo?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent go = new Intent(TheGallery.this, TheCamera.class);
+                                startActivity(go);
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no,null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+        }
     }
 
     protected void getFile(int number){
