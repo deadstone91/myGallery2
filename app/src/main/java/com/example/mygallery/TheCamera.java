@@ -61,12 +61,13 @@ public class TheCamera extends AppCompatActivity {
                 Log.i("PHOTOFILE", "dispatchTakePictureIntent:" + photoURI);
                 takePic.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 takePic.putExtra("data", "hello");
+
+
                 startActivityForResult(takePic, REQUEST_IMAGE_CAPTURE);
                 setResult(RESULT_OK, takePic);
             }
         }
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
 
@@ -102,22 +103,38 @@ public class TheCamera extends AppCompatActivity {
             }
 
 
+        }else{
+            Intent goBack = new Intent(this, MainActivity.class);
+            startActivity(goBack);
+            this.finish();
         }
     }
 
     protected void retakePic(View view) {
+       deletePic();
+
+
+
+
         new AlertDialog.Builder(TheCamera.this)
                 .setTitle("New Picture?")
                 .setMessage("Are you sure you want to take another picture?")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        theView.setImageDrawable(null);
                         dispatchTakePictureIntent();
+
                     }
                 })
                 .setNegativeButton(android.R.string.no, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    private void deletePic() {
+        File[] pics = new File[50];
+        //get directory here
     }
 
     protected void savePic(Intent data) {
