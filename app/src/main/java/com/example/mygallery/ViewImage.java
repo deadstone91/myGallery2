@@ -1,9 +1,14 @@
 package com.example.mygallery;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -11,9 +16,17 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ShareActionProvider;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ViewImage extends AppCompatActivity {
@@ -22,6 +35,9 @@ public class ViewImage extends AppCompatActivity {
     private static final String CHANNEL_ID = "intersting";
     ImageView view = null;
     String file;
+    ImageButton shareBtn;
+
+
 
 
     @Override
@@ -29,7 +45,37 @@ public class ViewImage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_image);
 
+        shareBtn = findViewById(R.id.shareBtn);
         addImage();
+        shareBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Drawable myDraw = view.getDrawable();
+                Bitmap bm = ((BitmapDrawable)myDraw).getBitmap();
+
+
+                 try {
+                     File file = new File(ViewImage.this.getExternalCacheDir(), "image.jpg");
+                     FileOutputStream fOut  = new FileOutputStream(file);
+                     bm.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                     fOut.flush();
+                     fOut.close();
+                     file.setReadable(true,false);
+                     Intent intent = new Intent(Intent.ACTION_SEND);
+                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                     intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+                     intent.setType("image/jpg");
+                     startActivity(Intent.createChooser(intent, "Share Picture"));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                     Toast.makeText(ViewImage.this,"File Not Found",Toast.LENGTH_SHORT).show();
+                }catch (IOException i) {
+                     i.printStackTrace();
+                 }catch (Exception e){
+                     e.printStackTrace();
+                 }
+            }
+        });
     }
 
     protected void addImage(){
@@ -82,4 +128,5 @@ public class ViewImage extends AppCompatActivity {
         int notificationId = 1003;
         notificationManager.notify(notificationId, builder.build());
     }
+
 }
