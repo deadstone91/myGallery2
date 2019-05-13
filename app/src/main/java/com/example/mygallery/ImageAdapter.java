@@ -15,11 +15,12 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
 
 public class ImageAdapter extends BaseAdapter {
     private Context context;
 
-    private File[] pics = new File[50];
+    private ArrayList<File> pics = new ArrayList<>();
     private Bitmap[] bit = new Bitmap[50];
     String path;
     File[] files;
@@ -44,7 +45,7 @@ public class ImageAdapter extends BaseAdapter {
                 Log.i("MOD", "getImages: " + mod);
                 if (mod == 1) {
 
-                    pics[i] = files[i];
+                    pics.add(files[i]) ;
                     Log.d("Files", "FileName:" + files[i].getName());
                     Bitmap bm = BitmapFactory.decodeFile(path + files[i].getName());
                     bit[counter] = bm;
@@ -59,12 +60,12 @@ public class ImageAdapter extends BaseAdapter {
 
         @Override
         public int getCount () {
-            return pics.length;
+            return pics.size();
         }
 
         @Override
         public Object getItem ( int position){
-            return pics[position];
+            return pics.get(position);
         }
 
         @Override

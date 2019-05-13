@@ -1,6 +1,8 @@
 package com.example.mygallery;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -8,11 +10,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,12 +36,11 @@ import java.io.IOException;
 public class ViewImage extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL = 1;
-    private static final String CHANNEL_ID = "intersting";
+    private static final String CHANNEL_ID = "interesting";
+    private final int NOTIFICATION_ID = 001;
     ImageView view = null;
     String file;
     ImageButton shareBtn;
-
-
 
 
     @Override
@@ -51,34 +54,37 @@ public class ViewImage extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Drawable myDraw = view.getDrawable();
-                Bitmap bm = ((BitmapDrawable)myDraw).getBitmap();
+                Bitmap bm = ((BitmapDrawable) myDraw).getBitmap();
 
 
-                 try {
-                     File file = new File(ViewImage.this.getExternalCacheDir(), "image.jpg");
-                     FileOutputStream fOut  = new FileOutputStream(file);
-                     bm.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
-                     fOut.flush();
-                     fOut.close();
-                     file.setReadable(true,false);
-                     Intent intent = new Intent(Intent.ACTION_SEND);
-                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                     intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-                     intent.setType("image/jpg");
-                     startActivity(Intent.createChooser(intent, "Share Picture"));
+                try {
+                    File file = new File(ViewImage.this.getExternalCacheDir(), "image.jpg");
+                    FileOutputStream fOut = new FileOutputStream(file);
+                    bm.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                    fOut.flush();
+                    fOut.close();
+                    file.setReadable(true, false);
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    Uri photoUri = FileProvider.getUriForFile(ViewImage.this, "com.example.mygallery.fileprovider", file);
+
+                    intent.putExtra(Intent.EXTRA_STREAM, photoUri);
+                    intent.setType("image/jpg");
+                    startActivity(Intent.createChooser(intent, "Share Picture"));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                     Toast.makeText(ViewImage.this,"File Not Found",Toast.LENGTH_SHORT).show();
-                }catch (IOException i) {
-                     i.printStackTrace();
-                 }catch (Exception e){
-                     e.printStackTrace();
-                 }
+                    Toast.makeText(ViewImage.this, "File Not Found", Toast.LENGTH_SHORT).show();
+                } catch (IOException i) {
+                    i.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
 
-    protected void addImage(){
+    protected void addImage() {
 
         Bundle extra = getIntent().getExtras();
         String picture = extra.getString("picture");
@@ -89,14 +95,14 @@ public class ViewImage extends AppCompatActivity {
         view.setImageBitmap(bm);
     }
 
-    protected void save(View view){
+    protected void save(View view) {
         PrimeThread thread = null;
         try {
             thread = new PrimeThread(file);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
@@ -112,21 +118,39 @@ public class ViewImage extends AppCompatActivity {
         }
         thread.start();
 
-       //notifyUser();
+        notifyUser();
 
     }
 
-    private void notifyUser(){
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("My Gallery")
-                .setContentText("FIlE SAVED TO DOWNLOADS")
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("FILE SAVED"))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+    private void notifyUser() {
+
+        notifyChannel();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
+        builder.setSmallIcon(R.drawable.ic_adb_black_24dp);
+        builder.setContentTitle("My Gallery");
+        builder.setContentText("FIlE SAVED TO DOWNLOADS");
+        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        int notificationId = 1003;
-        notificationManager.notify(notificationId, builder.build());
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    private void notifyChannel(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            CharSequence name = "personal Notofications";
+            String desc = "Include all personal notification";
+            int importanace = NotificationManager.IMPORTANCE_DEFAULT;
+
+            NotificationChannel nc = new NotificationChannel(CHANNEL_ID,name,importanace);
+
+            nc.setDescription(desc);
+
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+            notificationManager.createNotificationChannel(nc);
+        }
     }
 
 }
