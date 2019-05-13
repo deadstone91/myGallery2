@@ -16,7 +16,7 @@ import java.util.Random;
 
 public class PrimeThread extends Thread {
 
-    private static final String CHANNEL_ID = "intersting";
+    private static final String CHANNEL_ID = "interesting";
     String file;
     int counter = 100;
 

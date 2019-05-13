@@ -65,6 +65,9 @@ public class TheCamera extends AppCompatActivity {
 
                 startActivityForResult(takePic, REQUEST_IMAGE_CAPTURE);
                 setResult(RESULT_OK, takePic);
+
+
+
             }
         }
     }
@@ -73,6 +76,11 @@ public class TheCamera extends AppCompatActivity {
 
         theView = findViewById(R.id.cameraReturn);
         save = findViewById(R.id.saveBtn);
+
+        //delete last image from DCIM
+        Thread theThread;
+        theThread = new LastPicThread(this.getApplicationContext());
+        theThread.start();
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             if (data != null) {
