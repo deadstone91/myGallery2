@@ -24,6 +24,7 @@ public class ImageAdapter extends BaseAdapter {
     private Bitmap[] bit = new Bitmap[50];
     String path;
     File[] files;
+
     int counter = 0;
 
     public ImageAdapter(Context con, String dirPath) {
@@ -40,22 +41,21 @@ public class ImageAdapter extends BaseAdapter {
         files = directory.listFiles();
         Log.d("Files", "Size: " + files.length);
         if (files.length != 0) {
-            for (int i = 0; i < files.length; i++) {
-                int mod = i % 2;
-                Log.i("MOD", "getImages: " + mod);
-                if (mod == 1) {
-
-                    pics.add(files[i]) ;
+           for(int i = 0;i < files.length;i++)
+           {
+                if(i % 2 != 0)
+                {
+                    pics.add(files[i]);
                     Log.d("Files", "FileName:" + files[i].getName());
                     Bitmap bm = BitmapFactory.decodeFile(path + files[i].getName());
                     bit[counter] = bm;
                     counter++;
                 }
-            }
-        } else {
+           }
+       } else {
             Log.i("EMPTY", "getImages: TOTALLY EMPTY");
 
-        }
+       }
     }
 
         @Override
